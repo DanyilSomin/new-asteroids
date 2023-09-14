@@ -1,3 +1,3 @@
 cmake_minimum_required(VERSION 3.16)
 
-add_subdirectory(SDL)
+add_subdirectory(SDL EXCLUDE_FROM_ALL)
