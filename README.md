@@ -1,2 +1,13 @@
-# new-asteroids
-My new asteriods clone
+# My new asteriods clone
+
+## Additional dependeses
+### Mac
+```
+$ brew install freetype
+```
+
+### Win
+TBD
+
+### Lin
+TBD
