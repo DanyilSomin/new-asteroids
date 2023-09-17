@@ -5,17 +5,13 @@
 
 #include <string>
 
-constexpr int speed = 1000;
+#include "sdl-wrap/sdl-wrap.h"
+
+constexpr int speed                   = 1000;
 static constexpr Uint64 frameInterval = 8; // ~ 120+fps
 
-void logError() {
-  SDL_Log("SDL error: %s!", SDL_GetError());
-  exit(-1);
-}
-
 Uint64 getTimeBeforeNext(Uint64 now, Uint64 next) {
-  if (now >= next)
-    return 0;
+  if (now >= next) return 0;
 
   return next - now;
 }
@@ -25,17 +21,15 @@ void get_text_and_rect(SDL_Renderer *renderer, int x, int y, char *text,
   int text_width;
   int text_height;
   SDL_Surface *surface;
-  SDL_Color textColor = {255, 255, 255, 0};
+  SDL_Color textColor = { 255, 255, 255, 0 };
 
   surface = TTF_RenderText_Solid(font, text, textColor);
-  if (!surface)
-    logError();
+  sdlw::sdlAssert(surface);
 
   *texture = SDL_CreateTextureFromSurface(renderer, surface);
-  if (!*texture)
-    logError();
+  sdlw::sdlAssert(texture);
 
-  text_width = surface->w;
+  text_width  = surface->w;
   text_height = surface->h;
   SDL_FreeSurface(surface);
   rect->x = x;
@@ -45,76 +39,66 @@ void get_text_and_rect(SDL_Renderer *renderer, int x, int y, char *text,
 }
 
 int main() {
-  if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
-    logError();
-  }
+  sdlw::init();
 
   SDL_Window *window =
-      SDL_CreateWindow("GAME", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                       1280, 720, SDL_WINDOW_RESIZABLE);
-  if (!window)
-    logError();
-
-  SDL_SetHint(SDL_HINT_RENDER_VSYNC, "1");
+    SDL_CreateWindow("GAME", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                     1280, 720, SDL_WINDOW_RESIZABLE);
+  sdlw::sdlAssert(window);
 
   SDL_Renderer *renderer =
-      SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-  if (!renderer)
-    logError();
+    SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+  sdlw::sdlAssert(renderer);
 
   SDL_RendererInfo info;
   SDL_GetRendererInfo(renderer, &info);
 
   TTF_Init();
   TTF_Font *font = TTF_OpenFont("/font.ttf", 50);
-  if (!font)
-    logError();
+  sdlw::sdlAssert(font);
 
   SDL_FRect rect;
   SDL_Texture *texture;
 
-  std::string helloWorld{"HELLO WORLD"};
+  std::string helloWorld{ "HELLO WORLD" };
   get_text_and_rect(renderer, 0, 0, helloWorld.data(), font, &texture, &rect);
 
   SDL_Texture *imageTexture = IMG_LoadTexture(renderer, "/image.png");
-  if (!imageTexture)
-    logError();
+  sdlw::sdlAssert(imageTexture);
 
   SDL_FRect imageRect;
   imageRect.x = 0;
   imageRect.y = 0;
 
   int w, h;
-  if (SDL_QueryTexture(imageTexture, NULL, NULL, &w, &h))
-    logError();
+  sdlw::sdlAssert(SDL_QueryTexture(imageTexture, NULL, NULL, &w, &h));
   imageRect.w = w / 2;
   imageRect.h = h / 2;
 
-  int numKeys = 0;
+  int numKeys            = 0;
   const Uint8 *keyStates = SDL_GetKeyboardState(&numKeys);
-  if (!keyStates)
-    logError();
+  sdlw::sdlAssert(keyStates);
 
   SDL_Event event;
   bool close = false;
-  Uint64 timeLast{SDL_GetTicks64()};
+  Uint64 timeLast{ SDL_GetTicks64() };
 
   while (!close) {
-    const auto timeNow{SDL_GetTicks64()};
+    const auto timeNow{ SDL_GetTicks64() };
     const auto timeElapsed = timeNow - timeLast;
-    timeLast = timeNow;
+    timeLast               = timeNow;
 
     while (SDL_PollEvent(&event)) {
       switch (event.type) {
-      case SDL_QUIT:
-        close = true;
-        break;
-      default:
-        break;
+        case SDL_QUIT:
+          close = true;
+          break;
+        default:
+          break;
       }
     }
 
-    const auto shift{speed * timeElapsed / 1000.0};
+    const auto shift{ speed * timeElapsed / 1000.0 };
     if (keyStates[SDL_SCANCODE_A]) {
       rect.x -= shift;
     }
@@ -148,12 +132,13 @@ int main() {
 
     SDL_RenderPresent(renderer);
 
-    const auto delay =
-        getTimeBeforeNext(SDL_GetTicks64(), timeNow + frameInterval);
-    SDL_Delay(delay);
+    SDL_Delay(getTimeBeforeNext(SDL_GetTicks64(), timeNow + frameInterval));
   }
 
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
+
+  sdlw::quit();
+
   return 0;
 }
