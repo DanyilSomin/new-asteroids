@@ -76,6 +76,20 @@ int main() {
   std::string helloWorld{"HELLO WORLD"};
   get_text_and_rect(renderer, 0, 0, helloWorld.data(), font, &texture, &rect);
 
+  SDL_Texture *imageTexture = IMG_LoadTexture(renderer, "/image.png");
+  if (!imageTexture)
+    logError();
+
+  SDL_FRect imageRect;
+  imageRect.x = 0;
+  imageRect.y = 0;
+
+  int w, h;
+  if (SDL_QueryTexture(imageTexture, NULL, NULL, &w, &h))
+    logError();
+  imageRect.w = w / 2;
+  imageRect.h = h / 2;
+
   int numKeys = 0;
   const Uint8 *keyStates = SDL_GetKeyboardState(&numKeys);
   if (!keyStates)
@@ -101,21 +115,34 @@ int main() {
     }
 
     const auto shift{speed * timeElapsed / 1000.0};
-    if (keyStates[SDL_SCANCODE_A] || keyStates[SDL_SCANCODE_LEFT]) {
+    if (keyStates[SDL_SCANCODE_A]) {
       rect.x -= shift;
     }
-    if (keyStates[SDL_SCANCODE_D] || keyStates[SDL_SCANCODE_RIGHT]) {
+    if (keyStates[SDL_SCANCODE_LEFT]) {
+      imageRect.x -= shift;
+    }
+    if (keyStates[SDL_SCANCODE_D]) {
       rect.x += shift;
     }
-    if (keyStates[SDL_SCANCODE_W] || keyStates[SDL_SCANCODE_UP]) {
+    if (keyStates[SDL_SCANCODE_RIGHT]) {
+      imageRect.x += shift;
+    }
+    if (keyStates[SDL_SCANCODE_W]) {
       rect.y -= shift;
     }
-    if (keyStates[SDL_SCANCODE_S] || keyStates[SDL_SCANCODE_DOWN]) {
+    if (keyStates[SDL_SCANCODE_UP]) {
+      imageRect.y -= shift;
+    }
+    if (keyStates[SDL_SCANCODE_S]) {
       rect.y += shift;
+    }
+    if (keyStates[SDL_SCANCODE_DOWN]) {
+      imageRect.y += shift;
     }
 
     SDL_RenderClear(renderer);
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_RenderCopyF(renderer, imageTexture, NULL, &imageRect);
     SDL_RenderCopyF(renderer, texture, NULL, &rect);
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 
