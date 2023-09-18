@@ -3,8 +3,13 @@ cmake_minimum_required(VERSION 3.16)
 set(SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
 
-    ${CMAKE_CURRENT_SOURCE_DIR}/sdl-wrap/sdl-wrap.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/sdl-wrap/sdl-wrap.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/sdlwrap/sdlwrap.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/sdlwrap/sdlwrap.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/sdlwrap/window.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/sdlwrap/window.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/sdlwrap/sdlassert.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/sdlwrap/sdlassert.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/sdlwrap/moveptr.h
 )
 
 add_executable(${PROJECT_NAME}

@@ -5,7 +5,9 @@
 
 #include <string>
 
-#include "sdl-wrap/sdl-wrap.h"
+#include "sdlwrap/sdlassert.h"
+#include "sdlwrap/sdlwrap.h"
+#include "sdlwrap/window.h"
 
 constexpr int speed                   = 1000;
 static constexpr Uint64 frameInterval = 8; // ~ 120+fps
@@ -41,17 +43,14 @@ void get_text_and_rect(SDL_Renderer *renderer, int x, int y, char *text,
 int main() {
   sdlw::init();
 
-  SDL_Window *window =
-    SDL_CreateWindow("GAME", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                     1280, 720, SDL_WINDOW_RESIZABLE);
-  sdlw::sdlAssert(window);
+  sdlw::Window window{ "Game" };
 
   SDL_Renderer *renderer =
-    SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    SDL_CreateRenderer(window.get(), -1, SDL_RENDERER_ACCELERATED);
   sdlw::sdlAssert(renderer);
 
   SDL_RendererInfo info;
-  SDL_GetRendererInfo(renderer, &info);
+  sdlw::sdlAssert(SDL_GetRendererInfo(renderer, &info));
 
   TTF_Init();
   TTF_Font *font = TTF_OpenFont("/font.ttf", 50);
@@ -136,7 +135,6 @@ int main() {
   }
 
   SDL_DestroyRenderer(renderer);
-  SDL_DestroyWindow(window);
 
   sdlw::quit();
 

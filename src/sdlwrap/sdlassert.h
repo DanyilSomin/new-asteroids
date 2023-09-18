@@ -13,8 +13,4 @@ void sdlAssert(auto result) {
   sdlAssert(std::is_pointer_v<typeof(result)> == static_cast<bool>(result));
 }
 
-void init();
-
-void quit();
-
 }

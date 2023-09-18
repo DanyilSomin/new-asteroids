@@ -1,20 +1,8 @@
-#include "sdl-wrap.h"
+#include "sdlassert.h"
 
-#include <SDL2/sdl.h>
+#include <SDL2/SDL.h>
 
 namespace sdlw {
-
-void init() {
-  sdlAssert(SDL_Init(SDL_INIT_EVERYTHING));
-
-  const auto res = SDL_SetHint(SDL_HINT_RENDER_VSYNC, "1");
-
-  sdlAssert(res);
-}
-
-void quit() {
-  SDL_Quit();
-}
 
 void sdlAssert(bool ok) {
   if (!ok) {
