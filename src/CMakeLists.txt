@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 
+set(CMAKE_CXX_STANDARD 23)
+
 set(SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
 
@@ -10,6 +12,14 @@ set(SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/sdlwrap/sdlassert.h
     ${CMAKE_CURRENT_SOURCE_DIR}/sdlwrap/sdlassert.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/sdlwrap/moveptr.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/sdlwrap/renderer.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/sdlwrap/renderer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/sdlwrap/font.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/sdlwrap/font.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/sdlwrap/surface.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/sdlwrap/surface.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/sdlwrap/texture.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/sdlwrap/texture.cpp
 )
 
 add_executable(${PROJECT_NAME}

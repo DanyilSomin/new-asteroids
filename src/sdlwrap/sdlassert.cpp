@@ -2,12 +2,14 @@
 
 #include <SDL2/SDL.h>
 
+#include "sdlwrap.h"
+
 namespace sdlw {
 
 void sdlAssert(bool ok) {
   if (!ok) {
     SDL_Log("SDL error: %s!", SDL_GetError());
-    SDL_Quit();
+    quit();
 
     exit(-1);
   }

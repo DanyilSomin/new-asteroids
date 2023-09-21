@@ -1,12 +1,15 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_timer.h>
 #include <SDL_image.h>
-#include <SDL_ttf.h>
 
 #include <string>
 
+#include "sdlwrap/font.h"
+#include "sdlwrap/renderer.h"
 #include "sdlwrap/sdlassert.h"
 #include "sdlwrap/sdlwrap.h"
+#include "sdlwrap/surface.h"
+#include "sdlwrap/texture.h"
 #include "sdlwrap/window.h"
 
 constexpr int speed                   = 1000;
@@ -18,51 +21,20 @@ Uint64 getTimeBeforeNext(Uint64 now, Uint64 next) {
   return next - now;
 }
 
-void get_text_and_rect(SDL_Renderer *renderer, int x, int y, char *text,
-                       TTF_Font *font, SDL_Texture **texture, SDL_FRect *rect) {
-  int text_width;
-  int text_height;
-  SDL_Surface *surface;
-  SDL_Color textColor = { 255, 255, 255, 0 };
-
-  surface = TTF_RenderText_Solid(font, text, textColor);
-  sdlw::sdlAssert(surface);
-
-  *texture = SDL_CreateTextureFromSurface(renderer, surface);
-  sdlw::sdlAssert(texture);
-
-  text_width  = surface->w;
-  text_height = surface->h;
-  SDL_FreeSurface(surface);
-  rect->x = x;
-  rect->y = y;
-  rect->w = text_width;
-  rect->h = text_height;
-}
-
 int main() {
   sdlw::init();
 
   sdlw::Window window{ "Game" };
 
-  SDL_Renderer *renderer =
-    SDL_CreateRenderer(window.get(), -1, SDL_RENDERER_ACCELERATED);
-  sdlw::sdlAssert(renderer);
+  sdlw::Renderer renderer{ window };
 
-  SDL_RendererInfo info;
-  sdlw::sdlAssert(SDL_GetRendererInfo(renderer, &info));
+  sdlw::Font font("/font.ttf", 50);
 
-  TTF_Init();
-  TTF_Font *font = TTF_OpenFont("/font.ttf", 50);
-  sdlw::sdlAssert(font);
+  auto surface = font.renderTextSolid("HELLO WORLD", { 255, 255, 255, 0 });
 
-  SDL_FRect rect;
-  SDL_Texture *texture;
+  const auto texture = renderer.createTextureFromSurface(surface);
 
-  std::string helloWorld{ "HELLO WORLD" };
-  get_text_and_rect(renderer, 0, 0, helloWorld.data(), font, &texture, &rect);
-
-  SDL_Texture *imageTexture = IMG_LoadTexture(renderer, "/image.png");
+  SDL_Texture *imageTexture = IMG_LoadTexture(renderer.get(), "/image.png");
   sdlw::sdlAssert(imageTexture);
 
   SDL_FRect imageRect;
@@ -123,18 +95,18 @@ int main() {
       imageRect.y += shift;
     }
 
-    SDL_RenderClear(renderer);
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-    SDL_RenderCopyF(renderer, imageTexture, NULL, &imageRect);
-    SDL_RenderCopyF(renderer, texture, NULL, &rect);
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer.get());
+    SDL_SetRenderDrawColor(renderer.get(), 255, 255, 255, 255);
+    SDL_RenderCopyF(renderer.get(), imageTexture, NULL, &imageRect);
+    SDL_RenderCopyF(renderer.get(), texture, NULL, &rect);
+    SDL_SetRenderDrawColor(renderer.get(), 0, 0, 0, 255);
 
-    SDL_RenderPresent(renderer);
+    SDL_RenderPresent(renderer.get());
 
     SDL_Delay(getTimeBeforeNext(SDL_GetTicks64(), timeNow + frameInterval));
   }
 
-  SDL_DestroyRenderer(renderer);
+  SDL_DestroyRenderer(renderer.get());
 
   sdlw::quit();
 

@@ -17,11 +17,7 @@ Window::~Window() {
   SDL_DestroyWindow(_window.get());
 }
 
-const SDL_Window *Window::get() const {
-  return _window.get();
-}
-
-SDL_Window *Window::get() {
+SDL_Window *Window::get() const {
   return _window.get();
 }
 

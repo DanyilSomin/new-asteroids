@@ -12,13 +12,11 @@ class Window {
 public:
   explicit Window(const std::string &name);
 
-  explicit Window(Window &&)   = default;
-  Window &operator=(Window &&) = default;
+  explicit Window(Window &&) = default;
 
   ~Window();
 
-  const SDL_Window *get() const;
-  SDL_Window *get();
+  SDL_Window *get() const;
 
 private:
   MovePtr<SDL_Window> _window;

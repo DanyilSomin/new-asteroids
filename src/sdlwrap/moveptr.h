@@ -17,11 +17,7 @@ public:
     other._ptr = nullptr;
   }
 
-  const T *get() const {
-    return _ptr;
-  }
-
-  T *get() {
+  T *get() const {
     return _ptr;
   }
 
