@@ -1,21 +1,17 @@
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_timer.h>
-#include <SDL_image.h>
-
 #include <string>
 
-#include "sdlwrap/font.h"
-#include "sdlwrap/renderer.h"
-#include "sdlwrap/sdlassert.h"
-#include "sdlwrap/sdlwrap.h"
-#include "sdlwrap/surface.h"
-#include "sdlwrap/texture.h"
-#include "sdlwrap/window.h"
+#include "sdlw/font.h"
+#include "sdlw/keystates.h"
+#include "sdlw/renderer.h"
+#include "sdlw/sdlw.h"
+#include "sdlw/surface.h"
+#include "sdlw/texture.h"
+#include "sdlw/window.h"
 
-constexpr int speed                   = 1000;
-static constexpr Uint64 frameInterval = 8; // ~ 120+fps
+constexpr int speed                     = 1000;
+static constexpr uint64_t frameInterval = 8; // ~ 120+fps
 
-Uint64 getTimeBeforeNext(Uint64 now, Uint64 next) {
+uint64_t getTimeBeforeNext(uint64_t now, uint64_t next) {
   if (now >= next) return 0;
 
   return next - now;
@@ -24,35 +20,26 @@ Uint64 getTimeBeforeNext(Uint64 now, Uint64 next) {
 int main() {
   sdlw::init();
 
-  sdlw::Window window{ "Game" };
+  const sdlw::Window window{ "Game" };
+  const sdlw::Renderer renderer{ window };
+  const sdlw::Font font{ "/font.ttf", 50 };
 
-  sdlw::Renderer renderer{ window };
+  const std::string text{ "HELLO WORLD" };
+  const SDL_Color color{ 255, 255, 255, 0 };
+  const auto textSurface{ font.renderTextSolid(text, color) };
+  const auto textTexture{ renderer.createTextureFromSurface(textSurface) };
+  SDL_FRect textRect{ 0, 0, static_cast<float>(textTexture.w()),
+                      static_cast<float>(textTexture.h()) };
 
-  sdlw::Font font("/font.ttf", 50);
+  const auto imageTexture{ renderer.loadImage("/image.png") };
+  SDL_FRect imageRect{ 0, 0, static_cast<float>(imageTexture.w()),
+                       static_cast<float>(imageTexture.h()) };
 
-  auto surface = font.renderTextSolid("HELLO WORLD", { 255, 255, 255, 0 });
-
-  const auto texture = renderer.createTextureFromSurface(surface);
-
-  SDL_Texture *imageTexture = IMG_LoadTexture(renderer.get(), "/image.png");
-  sdlw::sdlAssert(imageTexture);
-
-  SDL_FRect imageRect;
-  imageRect.x = 0;
-  imageRect.y = 0;
-
-  int w, h;
-  sdlw::sdlAssert(SDL_QueryTexture(imageTexture, NULL, NULL, &w, &h));
-  imageRect.w = w / 2;
-  imageRect.h = h / 2;
-
-  int numKeys            = 0;
-  const Uint8 *keyStates = SDL_GetKeyboardState(&numKeys);
-  sdlw::sdlAssert(keyStates);
+  const sdlw::KeyStates keyStates;
 
   SDL_Event event;
   bool close = false;
-  Uint64 timeLast{ SDL_GetTicks64() };
+  uint64_t timeLast{ SDL_GetTicks64() };
 
   while (!close) {
     const auto timeNow{ SDL_GetTicks64() };
@@ -70,43 +57,41 @@ int main() {
     }
 
     const auto shift{ speed * timeElapsed / 1000.0 };
-    if (keyStates[SDL_SCANCODE_A]) {
-      rect.x -= shift;
+    if (keyStates.check(SDL_SCANCODE_A)) {
+      textRect.x -= shift;
     }
-    if (keyStates[SDL_SCANCODE_LEFT]) {
+    if (keyStates.check(SDL_SCANCODE_LEFT)) {
       imageRect.x -= shift;
     }
-    if (keyStates[SDL_SCANCODE_D]) {
-      rect.x += shift;
+    if (keyStates.check(SDL_SCANCODE_D)) {
+      textRect.x += shift;
     }
-    if (keyStates[SDL_SCANCODE_RIGHT]) {
+    if (keyStates.check(SDL_SCANCODE_RIGHT)) {
       imageRect.x += shift;
     }
-    if (keyStates[SDL_SCANCODE_W]) {
-      rect.y -= shift;
+    if (keyStates.check(SDL_SCANCODE_W)) {
+      textRect.y -= shift;
     }
-    if (keyStates[SDL_SCANCODE_UP]) {
+    if (keyStates.check(SDL_SCANCODE_UP)) {
       imageRect.y -= shift;
     }
-    if (keyStates[SDL_SCANCODE_S]) {
-      rect.y += shift;
+    if (keyStates.check(SDL_SCANCODE_S)) {
+      textRect.y += shift;
     }
-    if (keyStates[SDL_SCANCODE_DOWN]) {
+    if (keyStates.check(SDL_SCANCODE_DOWN)) {
       imageRect.y += shift;
     }
 
-    SDL_RenderClear(renderer.get());
-    SDL_SetRenderDrawColor(renderer.get(), 255, 255, 255, 255);
-    SDL_RenderCopyF(renderer.get(), imageTexture, NULL, &imageRect);
-    SDL_RenderCopyF(renderer.get(), texture, NULL, &rect);
-    SDL_SetRenderDrawColor(renderer.get(), 0, 0, 0, 255);
+    renderer.clear();
+    renderer.setDrawColor(255, 255, 255);
+    renderer.renderCopy(imageTexture, imageRect);
+    renderer.renderCopy(textTexture, textRect);
+    renderer.setDrawColor(0, 0, 0);
 
-    SDL_RenderPresent(renderer.get());
+    renderer.present();
 
     SDL_Delay(getTimeBeforeNext(SDL_GetTicks64(), timeNow + frameInterval));
   }
-
-  SDL_DestroyRenderer(renderer.get());
 
   sdlw::quit();
 
