@@ -1,0 +1,3 @@
+[submodule "3rdParty/sdlw"]
+	path = 3rdParty/sdlw
+	url = git@github.com:DanyilSomin/sdlw.git

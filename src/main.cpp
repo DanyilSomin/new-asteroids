@@ -1,12 +1,16 @@
 #include <string>
 
-#include "sdlw/font.h"
-#include "sdlw/keystates.h"
-#include "sdlw/renderer.h"
-#include "sdlw/sdlw.h"
-#include "sdlw/surface.h"
-#include "sdlw/texture.h"
-#include "sdlw/window.h"
+#include <SDL_events.h>
+#include <SDL_rect.h>
+
+#include <font.h>
+#include <frametimer.h>
+#include <keystates.h>
+#include <renderer.h>
+#include <sdlwrap.h>
+#include <surface.h>
+#include <texture.h>
+#include <window.h>
 
 constexpr int speed                     = 1000;
 static constexpr uint64_t frameInterval = 8; // ~ 120+fps
@@ -39,12 +43,9 @@ int main() {
 
   SDL_Event event;
   bool close = false;
-  uint64_t timeLast{ SDL_GetTicks64() };
+  sdlw::FrameTimer frameTimer{ 120 };
 
   while (!close) {
-    const auto timeNow{ SDL_GetTicks64() };
-    const auto timeElapsed = timeNow - timeLast;
-    timeLast               = timeNow;
 
     while (SDL_PollEvent(&event)) {
       switch (event.type) {
@@ -56,7 +57,7 @@ int main() {
       }
     }
 
-    const auto shift{ speed * timeElapsed / 1000.0 };
+    const auto shift{ speed * frameTimer.timeElapsed() / 1000.0 };
     if (keyStates.check(SDL_SCANCODE_A)) {
       textRect.x -= shift;
     }
@@ -90,7 +91,7 @@ int main() {
 
     renderer.present();
 
-    SDL_Delay(getTimeBeforeNext(SDL_GetTicks64(), timeNow + frameInterval));
+    sdlw::delay(frameTimer.resetTimeBeforeNextFrame());
   }
 
   sdlw::quit();
