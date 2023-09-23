@@ -12,6 +12,8 @@
 #include <texture.h>
 #include <window.h>
 
+#include "hfsm2/machine.hpp"
+
 constexpr int speed                     = 1000;
 static constexpr uint64_t frameInterval = 8; // ~ 120+fps
 

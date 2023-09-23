@@ -1,3 +1,6 @@
 [submodule "3rdparty/sdlw"]
 	path = 3rdparty/sdlw
 	url = git@github.com:DanyilSomin/sdlw.git
+[submodule "3rdparty/HFSM2"]
+	path = 3rdparty/HFSM2
+	url = git@github.com:andrew-gresyk/HFSM2.git
